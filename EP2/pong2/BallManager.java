@@ -1,5 +1,8 @@
 import java.awt.Color;
 import java.lang.reflect.*;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
 	Classe que gerencia uma ou mais bolas presentes em uma partida. Esta classe é a responsável por instanciar 
@@ -21,6 +24,12 @@ public class BallManager {
 	*/
 
 	private Class<?> ballClass = null;
+
+	/**
+		Atributo privado que representa a velocidade da bola antes do boost.	
+	*/
+
+	private double defaultSpeed;
 
 	/**
 		Construtor da classe BallManager.
@@ -78,6 +87,7 @@ public class BallManager {
 		try{
 			Constructor<?> constructor = ballClass.getConstructors()[0];
 			ball = (IBall) constructor.newInstance(cx, cy, width, height, color, speed, v[0], v[1]);
+			defaultSpeed = speed;
 		}
 		catch(Exception e){
 
@@ -163,8 +173,55 @@ public class BallManager {
 
 	public void checkCollision(Target target){
 
-		theBall.checkCollision(target);
+		//Se a bola principal realizou colisão com algum alvo
+		if(theBall.checkCollision(target)){
+
+			
+			//Se o alvo for BoostTarget
+			if(target instanceof BoostTarget){
+				long inicio = new Date().getTime();
+				
+				//Se a bola tem a velocidade padrão, ou seja, ainda não teve a velocidade aumentada
+				if(theBall.getSpeed() == defaultSpeed){
+
+					//Altera a velocidade da bola de acordo com a constante BOOST_FACTOR
+					theBall.setSpeed(defaultSpeed * BoostTarget.BOOST_FACTOR);
+
+					//Inicializa o timer
+					timerBoost();
+				}
+
+
+			//Se o alvo for DuplicatorTarget
+			}else if(target instanceof DuplicatorTarget){
+
+				// IBall newBall = createBallInstance(theBall.getCx(), theBall.getCy(), theBall.getWidth(), theBall.getHeight(), theBall.getColor(), defaultSpeed, theBall.getVx(), theBall.getVy());
+
+			}
+			
+		}
+	}
+
+	/**
+		Método que inicia um timer e altera a velocidade da bola quando o timer chega a constante BOOST_DURATION
+	*/
+
+	private void timerBoost(){
+
+		Timer timer = new Timer();
+
+		TimerTask task = new TimerTask(){
+
+			//Altera a velocidade da bola de volta a velocidade inicial
+			public void run(){
+				theBall.setSpeed(defaultSpeed);
+			}
+		};
+
+		//Armazena o tempo em milisegundos da constante
+		long delay = BoostTarget.BOOST_DURATION;
+
+		// Executa o timer depois de passar o tempo
+		timer.schedule(task, delay);
 	}
 }
-
-
