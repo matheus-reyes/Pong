@@ -1,8 +1,6 @@
 import java.awt.Color;
 import java.lang.reflect.*;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
 	Classe que gerencia uma ou mais bolas presentes em uma partida. Esta classe é a responsável por instanciar 
@@ -30,6 +28,18 @@ public class BallManager {
 	*/
 
 	private double defaultSpeed;
+
+	/**
+		Lista Ligada de bolas duplicadas	
+	*/
+
+	private Queue <IBall> duplicateBalls = new LinkedList <IBall> ();
+
+	/**
+		Lista Ligada de bolas duplicadas	
+	*/
+
+	private Iterator <IBall> iteratorBalls = duplicateBalls.iterator();
 
 	/**
 		Construtor da classe BallManager.
@@ -124,6 +134,11 @@ public class BallManager {
 	public void draw(){
 
 		theBall.draw();
+
+		//Percorre todas as bolas e as redesenha
+		for (IBall balls : duplicateBalls){
+			balls.draw();
+		}
 	}
 	
 	/**
@@ -135,6 +150,12 @@ public class BallManager {
 	public void update(long delta){
 	
 		theBall.update(delta);
+
+		//Percorre todas as bolas e as atualiza
+		for (IBall balls : duplicateBalls){
+			balls.update(delta);
+		}
+
 	}
 	
 	/**
@@ -151,6 +172,11 @@ public class BallManager {
 
 		if(theBall.checkCollision(wall)) hits++;
 
+		//Percorre todas as bolas e trata as colisões com a parede e soma um hit
+		for (IBall balls : duplicateBalls){
+			if(balls.checkCollision(wall)) hits++;
+		}
+
 		return hits;
 	}
 
@@ -163,6 +189,12 @@ public class BallManager {
 	public void checkCollision(Player player){
 
 		theBall.checkCollision(player);
+
+		//Percorre todas as bolas e trata as colisões com o jogador
+		for (IBall balls : duplicateBalls){
+			balls.checkCollision(player);
+		}
+
 	}
 
 	/**
@@ -179,7 +211,6 @@ public class BallManager {
 			
 			//Se o alvo for BoostTarget
 			if(target instanceof BoostTarget){
-				long inicio = new Date().getTime();
 				
 				//Se a bola tem a velocidade padrão, ou seja, ainda não teve a velocidade aumentada
 				if(theBall.getSpeed() == defaultSpeed){
@@ -195,11 +226,55 @@ public class BallManager {
 			//Se o alvo for DuplicatorTarget
 			}else if(target instanceof DuplicatorTarget){
 
-				// IBall newBall = createBallInstance(theBall.getCx(), theBall.getCy(), theBall.getWidth(), theBall.getHeight(), theBall.getColor(), defaultSpeed, theBall.getVx(), theBall.getVy());
+				//Define os eixos aleatóriamente
+				double vx = 0.85 + Math.random() * 0.15;
+				double vy = Math.sqrt(1.0 - vx * vx);
+				if(Math.random() < 0.5) vx = -vx;
+
+				//Cria uma instância de uma nova bola
+				IBall newBall = (IBall) createBallInstance(theBall.getCx(), theBall.getCy(), theBall.getWidth(), theBall.getHeight(), Color.RED, defaultSpeed, vx, vy);
+
+				//Adiciona a nova bola na fila
+				duplicateBalls.add(newBall);
+
+				//Inicia o timer
+				timerDuplicator();
 
 			}
 			
 		}
+
+		// //Percorre todas as bolas
+		// while (iteratorBalls.hasNext()){
+		// 	IBall bola = (IBall) iteratorBalls.next();
+		// 	//Se alguma bola colidiu com um alvo
+		// 	if(bola.checkCollision(target)){
+				
+		// 		//Se o alvo for BoostTarget
+		// 		if(target instanceof BoostTarget){
+				
+				
+				
+		// 		//Se o alvo for DuplicatorTarget
+		// 		}else if(target instanceof DuplicatorTarget){
+					
+		// 			//Define os eixos aleatóriamente
+		// 			double vx = 0.85 + Math.random() * 0.15;
+		// 			double vy = Math.sqrt(1.0 - vx * vx);
+		// 			if(Math.random() < 0.5) vx = -vx;
+
+		// 			//Cria uma instância de uma nova bola
+		// 			IBall newBallDuplicated = (IBall) createBallInstance(theBall.getCx(), theBall.getCy(), theBall.getWidth(), theBall.getHeight(), Color.RED, defaultSpeed, vx, vy);
+
+		// 			//Adiciona a nova bola na fila
+		// 			duplicateBalls.add(newBallDuplicated);
+
+		// 			//Inicia o timer
+		// 			timerDuplicator();
+
+		// 		}
+		// 	}
+		// }
 	}
 
 	/**
@@ -220,6 +295,29 @@ public class BallManager {
 
 		//Armazena o tempo em milisegundos da constante
 		long delay = BoostTarget.BOOST_DURATION;
+
+		// Executa o timer depois de passar o tempo
+		timer.schedule(task, delay);
+	}
+
+	/**
+		Método que inicia um timer e exclui uma bola duplicada quando passado o tempo de duração dela
+	*/
+
+	private void timerDuplicator(){
+
+		Timer timer = new Timer();
+
+		TimerTask task = new TimerTask(){
+
+			//Exclui a primeira bola criada
+			public void run(){
+				duplicateBalls.poll();
+			}
+		};
+
+		//Armazena o tempo em milisegundos da constante
+		long delay = DuplicatorTarget.EXTRA_BALL_DURATION;
 
 		// Executa o timer depois de passar o tempo
 		timer.schedule(task, delay);

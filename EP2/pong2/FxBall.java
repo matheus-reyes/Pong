@@ -14,7 +14,7 @@ public class FxBall extends Ball implements IBall{
 	*/
 
     public FxBall(double cx, double cy, double width, double height, java.awt.Color color, double speed, double vx, double vy){
-        super(cx, cy, width, height, color, speed, vx, vy);
+		super(cx, cy, width, height, color, speed, vx, vy);
     }
 
     /**
@@ -22,8 +22,6 @@ public class FxBall extends Ball implements IBall{
 	*/
 
 	public void draw(){
-
-
-		
+		super.draw();
 	}
 }
