@@ -130,9 +130,11 @@ public class BallManager {
 
 		theBall.draw();
 
+		//Iterador da fila de bolas duplicadas
+		Iterator <IBall> iteratorBalls = duplicateBalls.iterator();
 		//Percorre todas as bolas e as redesenha
-		for (IBall balls : duplicateBalls){
-			balls.draw();
+		while (iteratorBalls.hasNext()){
+			iteratorBalls.next().draw();
 		}
 	}
 	
@@ -146,9 +148,12 @@ public class BallManager {
 	
 		theBall.update(delta);
 
+		//Iterador da fila de bolas duplicadas
+		Iterator <IBall> iteratorBalls = duplicateBalls.iterator();
+
 		//Percorre todas as bolas e as atualiza
-		for (IBall balls : duplicateBalls){
-			balls.update(delta);
+		while (iteratorBalls.hasNext()){
+			iteratorBalls.next().update(delta);
 		}
 
 	}
@@ -167,9 +172,12 @@ public class BallManager {
 
 		if(theBall.checkCollision(wall)) hits++;
 
-		//Percorre todas as bolas e trata as colisões com a parede e soma um hit
-		for (IBall balls : duplicateBalls){
-			if(balls.checkCollision(wall)) hits++;
+		//Iterador da fila de bolas duplicadas
+		Iterator <IBall> iteratorBalls = duplicateBalls.iterator();
+
+		//Percorre todas as bolas e trata suas colisões com as paredes
+		while (iteratorBalls.hasNext()){
+			if(iteratorBalls.next().checkCollision(wall)) hits++;
 		}
 
 		return hits;
@@ -185,9 +193,12 @@ public class BallManager {
 
 		theBall.checkCollision(player);
 
-		//Percorre todas as bolas e trata as colisões com o jogador
-		for (IBall balls : duplicateBalls){
-			balls.checkCollision(player);
+		//Iterador da fila de bolas duplicadas
+		Iterator <IBall> iteratorBalls = duplicateBalls.iterator();
+
+		//Percorre todas as bolas e trata suas colisões com os jogadores
+		while (iteratorBalls.hasNext()){
+			iteratorBalls.next().checkCollision(player);
 		}
 
 	}
