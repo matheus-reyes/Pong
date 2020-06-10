@@ -136,6 +136,7 @@ public class BallManager {
 		while (iteratorBalls.hasNext()){
 			iteratorBalls.next().draw();
 		}
+
 	}
 	
 	/**
