@@ -30,16 +30,11 @@ public class BallManager {
 	private double defaultSpeed;
 
 	/**
-		Lista Ligada de bolas duplicadas	
+		Atributo privado que representa uma fila de bolas duplicadas	
 	*/
 
 	private Queue <IBall> duplicateBalls = new LinkedList <IBall> ();
 
-	/**
-		Lista Ligada de bolas duplicadas	
-	*/
-
-	private Iterator <IBall> iteratorBalls = duplicateBalls.iterator();
 
 	/**
 		Construtor da classe BallManager.
@@ -219,7 +214,7 @@ public class BallManager {
 					theBall.setSpeed(defaultSpeed * BoostTarget.BOOST_FACTOR);
 
 					//Inicializa o timer
-					timerBoost();
+					timerBoostMainBall();
 				}
 
 
@@ -244,44 +239,62 @@ public class BallManager {
 			
 		}
 
-		// //Percorre todas as bolas
-		// while (iteratorBalls.hasNext()){
-		// 	IBall bola = (IBall) iteratorBalls.next();
-		// 	//Se alguma bola colidiu com um alvo
-		// 	if(bola.checkCollision(target)){
+		//Como não podemos iterar sobre uma fila e modificá-la ao mesmo tempo usaremos uma fila temporária
+		Queue <IBall> newBalls = new LinkedList <IBall> ();
+
+		//Percorre todas as bolas
+		for (IBall balls : duplicateBalls){
+
+			//Se alguma bola colidiu com um alvo
+			if(balls.checkCollision(target)){
 				
-		// 		//Se o alvo for BoostTarget
-		// 		if(target instanceof BoostTarget){
+				//Se o alvo for BoostTarget
+				if(target instanceof BoostTarget){
 				
+					//Se a bola tem a velocidade padrão, ou seja, ainda não teve a velocidade aumentada
+					if(balls.getSpeed() == defaultSpeed){
+
+						//Altera a velocidade da bola de acordo com a constante BOOST_FACTOR
+						balls.setSpeed(defaultSpeed * BoostTarget.BOOST_FACTOR);
+
+						//Inicializa o timer
+						timerBoostDuplicateBalls(balls);
+					}
 				
-				
-		// 		//Se o alvo for DuplicatorTarget
-		// 		}else if(target instanceof DuplicatorTarget){
+				//Se o alvo for DuplicatorTarget
+				}else if(target instanceof DuplicatorTarget){
 					
-		// 			//Define os eixos aleatóriamente
-		// 			double vx = 0.85 + Math.random() * 0.15;
-		// 			double vy = Math.sqrt(1.0 - vx * vx);
-		// 			if(Math.random() < 0.5) vx = -vx;
+					//Define os eixos aleatóriamente
+					double vx = 0.85 + Math.random() * 0.15;
+					double vy = Math.sqrt(1.0 - vx * vx);
+					if(Math.random() < 0.5) vx = -vx;
 
-		// 			//Cria uma instância de uma nova bola
-		// 			IBall newBallDuplicated = (IBall) createBallInstance(theBall.getCx(), theBall.getCy(), theBall.getWidth(), theBall.getHeight(), Color.RED, defaultSpeed, vx, vy);
+					//Cria uma instância de uma nova bola
+					IBall newBallDuplicated = (IBall) createBallInstance(balls.getCx(), balls.getCy(), balls.getWidth(), balls.getHeight(), Color.RED, defaultSpeed, vx, vy);
 
-		// 			//Adiciona a nova bola na fila
-		// 			duplicateBalls.add(newBallDuplicated);
+					//Adiciona a nova bola na fila de bolas temporárias
+					newBalls.add(newBallDuplicated);
 
-		// 			//Inicia o timer
-		// 			timerDuplicator();
+				}
+			}
+		}
 
-		// 		}
-		// 	}
-		// }
+		//Percorre a fila temporária de bolas duplicadas
+		for(IBall balls: newBalls){
+
+			//Adiciona as bolas duplicadas a fila original
+			duplicateBalls.add(balls);
+
+			//Inicia o timer
+			timerDuplicator();
+		}
 	}
 
 	/**
 		Método que inicia um timer e altera a velocidade da bola quando o timer chega a constante BOOST_DURATION
 	*/
 
-	private void timerBoost(){
+	private void timerBoostMainBall(){
 
 		Timer timer = new Timer();
 
@@ -318,6 +331,30 @@ public class BallManager {
 
 		//Armazena o tempo em milisegundos da constante
 		long delay = DuplicatorTarget.EXTRA_BALL_DURATION;
+
+		// Executa o timer depois de passar o tempo
+		timer.schedule(task, delay);
+	}
+
+	/**
+		Método que inicia um timer e altera a velocidade das bolas duplicadas quando o timer chega a constante BOOST_DURATION
+		@param ball referência para uma bola que será usada para alterar sua velocidade.
+	*/
+
+	private void timerBoostDuplicateBalls(IBall ball){
+
+		Timer timer = new Timer();
+
+		TimerTask task = new TimerTask(){
+
+			//Altera a velocidade da bola de volta a velocidade inicial
+			public void run(){
+				ball.setSpeed(defaultSpeed);
+			}
+		};
+
+		//Armazena o tempo em milisegundos da constante
+		long delay = BoostTarget.BOOST_DURATION;
 
 		// Executa o timer depois de passar o tempo
 		timer.schedule(task, delay);
