@@ -126,17 +126,21 @@ public class BallManager {
 		Chamado sempre que a(s) bola(s) precisa ser (re)desenhada(s).
 	*/
 
-	public void draw(){
+	public void draw() throws ConcurrentModificationException{
 
-		theBall.draw();
+		try{
+			theBall.draw();
 
-		//Iterador da fila de bolas duplicadas
-		Iterator <IBall> iteratorBalls = duplicateBalls.iterator();
-		//Percorre todas as bolas e as redesenha
-		while (iteratorBalls.hasNext()){
-			iteratorBalls.next().draw();
+			//Iterador da fila de bolas duplicadas
+			Iterator <IBall> iteratorBalls = duplicateBalls.iterator();
+			//Percorre todas as bolas e as redesenha
+			while (iteratorBalls.hasNext()){
+				iteratorBalls.next().draw();
+			}
+		}catch(Exception e){
+			System.out.println(e);
 		}
-
+		
 	}
 	
 	/**
@@ -145,18 +149,22 @@ public class BallManager {
 		@param delta quantidade de millisegundos que se passou entre o ciclo anterior de atualização do jogo e o atual.
 	*/
 
-	public void update(long delta){
-	
-		theBall.update(delta);
+	public void update(long delta) throws ConcurrentModificationException{
+		
+		try{
+			theBall.update(delta);
 
-		//Iterador da fila de bolas duplicadas
-		Iterator <IBall> iteratorBalls = duplicateBalls.iterator();
+			//Iterador da fila de bolas duplicadas
+			Iterator <IBall> iteratorBalls = duplicateBalls.iterator();
 
-		//Percorre todas as bolas e as atualiza
-		while (iteratorBalls.hasNext()){
-			iteratorBalls.next().update(delta);
+			//Percorre todas as bolas e as atualiza
+			while (iteratorBalls.hasNext()){
+				iteratorBalls.next().update(delta);
+			}
+			
+		}catch(Exception e){
+			System.out.println(e);
 		}
-
 	}
 	
 	/**
