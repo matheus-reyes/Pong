@@ -1,4 +1,4 @@
-# COO-EPS
+# Pong
 Produção do jogo Pong na disciplina de Computação Orientada à Objetos
 
 <h2> <b> EP1 </b> </h2>
